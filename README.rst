@@ -1,33 +1,39 @@
-# PowerShellPython
+**PowerShellPython**
+This fork features a modified ``subprocess.py`` (``subprocess.run``) that prefixes code to replace core shell operations from ``cmd.exe`` with ``PowerShell``, targeting commands like **ninja, cmake, cl/msvc, link, etc.** The goal is to **bypass cmd.exe issues** by using PowerShell for Python execution.
 
-This fork features a modified `subprocess.py` (`subprocess.run`) that prefixes code to replace core shell operations from `cmd.exe` with `PowerShell`, targeting commands like **ninja, cmake, cl/msvc, link, etc.** The goal is to **bypass cmd.exe issues** by using PowerShell for Python execution.
+**Use / Goals:**
 
-# Use / Goals:
+**Bypass CMD issues causing build/install fails.**
 
-1. Bypass CMD issues causing build/install fails.
-   1. To fix CMD length issues with typical cmd.exe builds and installs.
-   2. If you run into CMD line length exceeded (especially with link.exe), this will likely fix it.
-2. Bring seamless pip ecosystem back to Windows.
-   1. To fix some pip usage with certain large projects, mainly and tested are Xformers (with extensions) and flash-attn.
-   2. If you have pip install issues with these, this may fix it, though pip issues vary.
-3. Make Windows more viable and functionality less dependent on Linux VM-ware or other invasive workarounds.
-   1. Via the above, and give An alternative shell for workarounds, troubleshooting and debugging.
+- To fix CMD length issues with typical cmd.exe builds and installs.
 
-## Features
+- If you run into CMD line length exceeded (especially with link.exe), this will likely fix it.
+
+**Bring seamless pip ecosystem back to Windows.**
+
+- To fix some pip usage with certain large projects, mainly and tested are Xformers (with extensions) and flash-attn.
+
+- If you have pip install issues with these, this may fix it, though pip issues vary.
+
+**Make Windows more viable and functionality less dependent on Linux VM-ware or other invasive workarounds.**
+
+- Via the above, and give An alternative shell for workarounds, troubleshooting and debugging.
+
+**Features**
 
 - **Portable & Future-Proof** – No additional imports; designed for maximum compatibility with minimal invasiveness.
-- \*Modification Limited to\* **`subprocess.run`** – The rest of `subprocess.py` remains untouched.
+- \*Modification Limited to\* ``subprocess.run`` – The rest of ``subprocess.py`` remains untouched.
 - **Works with Standard Build Toolchains** – Requires the usual dependencies: MSVC, C++, CL, VC (Visual Studio), CMake (Windows version, *not Python’s*), Ninja (Windows version, not Python’s), CUDA, etc.
 - **Fixes vcvarsall.bat Conflicts** – Uses a **custom call** to initialize MSVC without interference from PowerShell prefixing.
 - **Supports Different PowerShell Versions** – While tested on **PowerShell v1.0**, it should work with other versions based on pathing/env priority.
 - **Validated on Both Native & VM Environments** – Tested with **Python 3.10.6, CUDA 12.1, PyTorch 2.5.1+cu121, Xformers v0.0.29.post1, and Flash-Attn v2.7.4.post1**.
-- \*Works with Plain\* **`pip install`** – No need for manual builds or Git repo installations.
+- \*Works with Plain\* ``pip install`` – No need for manual builds or Git repo installations.
 
-## Recommended Fixes & Enhancements
+**Recommended Fixes & Enhancements**
 
-### **Optional: PowerShell Helper Script (ver.ps1)**
+**Optional: PowerShell Helper Script (ver.ps1)**
 
-This **optional** script improves **verbose logging compatibility**. Place it in `system32` or another accessible location and **enable execution** via:
+This **optional** script improves **verbose logging compatibility**. Place it in ``system32`` or another accessible location and **enable execution** via:
 
 ```powershell
 Set-ExecutionPolicy Unrestricted
@@ -41,33 +47,33 @@ Write-Output ""
 Write-Output "Microsoft Windows [Version $($os.Version)]"
 ```
 
-### Highly Recommended: Setuptools Fix (`build.py` Patch)
+**Highly Recommended**: Setuptools Fix ( ``build.py`` Patch)
 
-Issue in `build.py` involving `+ plat_specifier` can cause Windows pip install failures (e.g., Xformers). Remove the lines to resolve it:
+Issue in ``build.py`` involving ``+ plat_specifier`` can cause Windows pip install failures (e.g., Xformers). Remove the lines to resolve it:
 
-**`setuptools/_distutils/command/build.py`**:
 
+``setuptools/_distutils/command/build.py``:
 ```python
 if self.build_purelib is None:
-    self.build_purelib = os.path.join(self.build_base, 'lib')  # <<< Remove + plat_specifier
+   self.build_purelib = os.path.join(self.build_base, 'lib')  # <<< Remove + plat_specifier
 if self.build_platlib is None:
-    self.build_platlib = os.path.join(self.build_base, 'lib')  # <<< Remove + plat_specifier
+   self.build_platlib = os.path.join(self.build_base, 'lib')  # <<< Remove + plat_specifier
 ...
 self.build_temp = os.path.join(self.build_base, 'temp')  # <<< Remove + plat_specifier
 ```
 
 A **scripted auto-fix** is included in PowerShellPython but is **commented out by default**.
 
-## **Installation & Usage**
+**Installation & Usage**
 1. In this forked version, its all setup and ready to go.
    1. Note: Renamed original subprocess as subprocess_original.py so user may switch between them.
-2. Apply the `build.py` patch if needed
-3. (Optional) Add `ver.ps1` to improve log handling
+2. Apply the ``build.py`` patch if needed
+3. (Optional) Add ``ver.ps1`` to improve log handling
 **NOTE:** You do not actually need to run from powershell at all, you can run cmd like normal, python will just be calling powershell itself from the backend.
 
-### **Conclusion**
+**Conclusion**
 
-PowerShellPython aims to make **Windows AI development smoother** by replacing `cmd.exe` with **PowerShell** where possible. While not a universal fix, it has shown **significant improvements in AI package installations and builds**, reducing cmd-related failures.
+PowerShellPython aims to make **Windows AI development smoother** by replacing ``cmd.exe`` with **PowerShell** where possible. While not a universal fix, it has shown **significant improvements in AI package installations and builds**, reducing cmd-related failures.
 
 This is a work-in-progress—feedback is welcome!
 
